@@ -1,6 +1,6 @@
 # Color Guide Hub
 
-A comprehensive collection of color-related tools and guides for developers and designers.
+A collection of color-related tools and guides for developers and designers.
 
 ## Features
 
