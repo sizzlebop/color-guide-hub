@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Color Reference</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            line-height: 1.6;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #13151a, #090909);
+            color: #e0e0e0;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 0% 0%, #7928ca15 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, #ff008015 0%, transparent 50%);
+            z-index: -1;
+        }
+        .navbar {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-links {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+        }
+        .nav-links a:hover {
+            color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeIn 0.6s ease forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .section:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .section:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        h2 {
+            text-align: center;
+            margin: 30px 0;
+            color: #fff;
+            font-size: 24px;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .color-block {
+            padding: 15px 10px;
+            border-radius: 8px;
+            text-align: center;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .color-block:hover {
+            transform: scale(1.05);
+            z-index: 1;
+        }
+        .color-block[data-color-dark="true"] {
+            color: #333;
+            text-shadow: none;
+        }
+        .color-code {
+            font-weight: bold;
+        }
+        .color-hex {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .description {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #999;
+        }
+        .tooltip {
+            position: fixed;
+            background: rgba(42, 42, 42, 0.95);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="terminal-colors.html">Terminal Colors</a>
+            <a href="color-palettes.html">Color Palettes</a>
+            <a href="image-colors.html">Image Colors</a>
+            <a href="ansi-256.html">256 Colors</a>
+            <a href="color-interpolation.html">Color Interpolation</a>
+            <a href="material-palette.html">Material Palette</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>System Colors (0-15)</h2>
+        <div class="section">
+            <p class="description">Basic 16 system colors including standard and bright variants</p>
+            <div class="color-grid" id="system-colors"></div>
+        </div>
+
+        <h2>6×6×6 Color Cube (16-231)</h2>
+        <div class="section">
+            <p class="description">216 colors formed by combinations of RGB values</p>
+            <div class="color-grid" id="color-cube"></div>
+        </div>
+
+        <h2>Grayscale (232-255)</h2>
+        <div class="section">
+            <p class="description">24 shades of gray from dark to light</p>
+            <div class="color-grid" id="grayscale"></div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        function createColorBlock(colorCode, container) {
+            const block = document.createElement('div');
+            block.className = 'color-block';
+            const color = terminalToRGB(colorCode);
+            block.style.backgroundColor = color;
+            
+            const codeSpan = document.createElement('span');
+            codeSpan.className = 'color-code';
+            codeSpan.textContent = `Color ${colorCode}`;
+            
+            const hexSpan = document.createElement('span');
+            hexSpan.className = 'color-hex';
+            hexSpan.textContent = color.toUpperCase();
+            
+            block.appendChild(codeSpan);
+            block.appendChild(hexSpan);
+            
+            const rgb = color.match(/\d+/g)?.map(Number) || hexToRgb(color);
+            const brightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
+            if (brightness > 128) {
+                block.setAttribute('data-color-dark', 'true');
+            }
+            
+            block.addEventListener('mousemove', (e) => {
+                tooltip.style.opacity = '1';
+                tooltip.textContent = `Color ${colorCode}: ${color.toUpperCase()}`;
+                tooltip.style.left = e.pageX + 10 + 'px';
+                tooltip.style.top = e.pageY + 10 + 'px';
+            });
+
+            block.addEventListener('mouseout', () => {
+                tooltip.style.opacity = '0';
+            });
+
+            block.addEventListener('click', () => {
+                navigator.clipboard.writeText(color);
+                const originalText = tooltip.textContent;
+                tooltip.textContent = 'Copied!';
+                setTimeout(() => {
+                    tooltip.textContent = originalText;
+                }, 1000);
+            });
+            
+            container.appendChild(block);
+        }
+
+        function hexToRgb(hex) {
+            const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+            hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? [
+                parseInt(result[1], 16),
+                parseInt(result[2], 16),
+                parseInt(result[3], 16)
+            ] : [0, 0, 0];
+        }
+
+        function rgbToHex(r, g, b) {
+            return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+        }
+
+        function terminalToRGB(code) {
+            code = parseInt(code);
+            if (code < 16) {
+                const systemColors = [
+                    '#000000', '#800000', '#008000', '#808000',
+                    '#000080', '#800080', '#008080', '#c0c0c0',
+                    '#808080', '#ff0000', '#00ff00', '#ffff00',
+                    '#0000ff', '#ff00ff', '#00ffff', '#ffffff'
+                ];
+                return systemColors[code];
+            } else if (code < 232) {
+                code -= 16;
+                const r = Math.floor(code / 36) * 51;
+                const g = Math.floor((code % 36) / 6) * 51;
+                const b = (code % 6) * 51;
+                return rgbToHex(r, g, b);
+            } else {
+                const value = (code - 232) * 10 + 8;
+                return rgbToHex(value, value, value);
+            }
+        }
+
+        const tooltip = document.getElementById('tooltip');
+
+        // System colors
+        const systemColors = document.getElementById('system-colors');
+        for (let i = 0; i < 16; i++) {
+            createColorBlock(i, systemColors);
+        }
+
+        // 216 color cube
+        const colorCube = document.getElementById('color-cube');
+        for (let i = 16; i < 232; i++) {
+            createColorBlock(i, colorCube);
+        }
+
+        // Grayscale
+        const grayscale = document.getElementById('grayscale');
+        for (let i = 232; i < 256; i++) {
+            createColorBlock(i, grayscale);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Design Palette Generator</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            line-height: 1.6;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #13151a, #090909);
+            color: #e0e0e0;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 0% 0%, #7928ca15 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, #ff008015 0%, transparent 50%);
+            z-index: -1;
+        }
+        .navbar {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-links {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .color-picker-section {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .example-site {
+            padding: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+        .example-header {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        .example-nav {
+            display: flex;
+            gap: 2rem;
+        }
+        .example-nav a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .example-nav a:hover {
+            opacity: 1;
+        }
+        .example-content {
+            min-height: 400px;
+            padding: 2rem;
+        }
+        .example-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .example-button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .example-button:hover {
+            transform: translateY(-2px);
+        }
+        .example-checkbox {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-radius: 3px;
+            margin-right: 8px;
+            cursor: pointer;
+            vertical-align: middle;
+            transition: all 0.3s ease;
+        }
+        .example-checkbox:checked {
+            border-color: transparent;
+            position: relative;
+        }
+        .example-checkbox:checked::before {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+        }
+        .example-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: white;
+            margin: 0 4px;
+        }
+        .example-link {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .example-link:hover {
+            text-decoration: underline;
+        }
+        .example-progress {
+            width: 100%;
+            height: 4px;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 2px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        .example-progress-bar {
+            height: 100%;
+            width: 75%;
+            transition: background-color 0.3s ease;
+        }
+        .picker-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        .color-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        .color-input input[type="color"] {
+            width: 100px;
+            height: 100px;
+            padding: 0;
+            border: none;
+            border-radius: 12px;
+            background: none;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .color-input input[type="color"]:hover {
+            transform: scale(1.05);
+        }
+        h2 {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 24px;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .button {
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="terminal-colors.html">Terminal Colors</a>
+            <a href="color-palettes.html">Color Palettes</a>
+            <a href="image-colors.html">Image Colors</a>
+            <a href="ansi-256.html">256 Colors</a>
+            <a href="color-interpolation.html">Color Interpolation</a>
+            <a href="material-palette.html">Material Palette</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="color-picker-section">
+            <h2>Material Design Palette Generator</h2>
+            <div class="picker-container">
+                <div class="color-input">
+                    <label>Primary Color</label>
+                    <input type="color" id="primaryColor" value="#2196F3">
+                </div>
+                <div class="color-input">
+                    <label>Accent Color</label>
+                    <input type="color" id="accentColor" value="#FF4081">
+                </div>
+            </div>
+            <button class="button" onclick="updateExample()">Update Preview</button>
+        </div>
+
+        <div class="color-picker-section example-site" id="exampleUI">
+            <div class="example-header">
+                <div class="logo">Material App</div>
+                <nav class="example-nav">
+                    <a href="#">Home</a>
+                    <a href="#">Features</a>
+                    <a href="#">About</a>
+                    <a href="#">Contact</a>
+                </nav>
+            </div>
+            <div class="example-content">
+                <div class="example-card">
+                    <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                        <input type="checkbox" class="example-checkbox">
+                        <h3 style="margin: 0;">Welcome to Material Design</h3>
+                    </div>
+                    <p>This is an example of how your color scheme would look in a real application.</p>
+                    <div class="example-tags">
+                        <span class="example-tag">Design</span>
+                        <span class="example-tag">Material</span>
+                    </div>
+                    <div class="example-progress">
+                        <div class="example-progress-bar"></div>
+                    </div>
+                </div>
+                <div class="example-card">
+                    <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                        <input type="checkbox" class="example-checkbox" checked>
+                        <h3 style="margin: 0;">Features</h3>
+                    </div>
+                    <p>Explore the possibilities of your chosen color palette. Click <a href="#" class="example-link">here</a> to learn more.</p>
+                    <div class="example-tags">
+                        <span class="example-tag">New</span>
+                        <span class="example-tag">Featured</span>
+                    </div>
+                </div>
+                <button class="example-button">Get Started</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateExample() {
+            const primaryColor = document.getElementById('primaryColor').value;
+            const accentColor = document.getElementById('accentColor').value;
+            
+            // Update header background
+            document.querySelector('.example-header').style.backgroundColor = primaryColor;
+            
+            // Update content background
+            document.querySelector('.example-content').style.backgroundColor = lightenColor(primaryColor, 0.95);
+            
+            // Update button
+            document.querySelector('.example-button').style.backgroundColor = accentColor;
+            
+            // Update checkboxes
+            document.querySelectorAll('.example-checkbox').forEach(checkbox => {
+                checkbox.style.borderColor = checkbox.checked ? accentColor : '#ccc';
+                checkbox.style.backgroundColor = checkbox.checked ? accentColor : 'transparent';
+            });
+
+            // Update progress bar
+            document.querySelector('.example-progress-bar').style.backgroundColor = accentColor;
+
+            // Update links
+            document.querySelectorAll('.example-link').forEach(link => {
+                link.style.color = accentColor;
+            });
+
+            // Update tags
+            document.querySelectorAll('.example-tag').forEach(tag => {
+                tag.style.backgroundColor = accentColor;
+            });
+
+            // Update cards
+            document.querySelectorAll('.example-card').forEach(card => {
+                card.style.borderLeft = `4px solid ${primaryColor}`;
+            });
+
+            // Update text colors
+            document.querySelectorAll('.example-card h3').forEach(h3 => {
+                h3.style.color = primaryColor;
+            });
+        }
+
+        function lightenColor(color, factor) {
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            
+            const lightenChannel = c => Math.round(c + (255 - c) * factor);
+            
+            const rNew = lightenChannel(r);
+            const gNew = lightenChannel(g);
+            const bNew = lightenChannel(b);
+            
+            return `rgb(${rNew}, ${gNew}, ${bNew})`;
+        }
+
+        // Initialize the example
+        window.onload = updateExample;
+
+        // Add checkbox functionality
+        document.querySelectorAll('.example-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateExample);
+        });
+    </script>
+</body>
+</html>

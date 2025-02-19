@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Guide Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Guide Hub</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            background: #121212;
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #13151a, #090909);
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, #7928ca22 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, #ff008022 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, #13151a 0%, transparent 100%);
+            z-index: -1;
+            animation: pulseGlow 10s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+        .navbar {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 10;
+        }
+        .nav-links {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+        }
+        .nav-links a:hover {
+            color: #fff;
+        }
+        .hero {
+            text-align: center;
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(10, 10, 10, 0.8) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 2rem;
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, transparent 30%, #000 100%);
+            animation: rotateBackground 20s linear infinite;
+        }
+        @keyframes rotateBackground {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s ease-in-out infinite;
+            background-size: 200% auto;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            margin: 0;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: -200% center;
+            }
+            100% {
+                background-position: 200% center;
+            }
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: #999;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards 0.5s;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        .card {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            transform: translateY(30px);
+            opacity: 0;
+            animation: fadeInCards 0.6s ease forwards;
+        }
+        @keyframes fadeInCards {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .card:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        .card:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+        .card:nth-child(5) {
+            animation-delay: 0.8s;
+        }
+        .card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .card h2 {
+            margin-top: 0;
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .card p {
+            color: #999;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .card a {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        .card a:hover::before {
+            left: 100%;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="terminal-colors.html">Terminal Colors</a>
+            <a href="color-palettes.html">Color Palettes</a>
+            <a href="image-colors.html">Image Colors</a>
+            <a href="ansi-256.html">256 Colors</a>
+            <a href="color-interpolation.html">Color Interpolation</a>
+            <a href="material-palette.html">Material Palette</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <svg class="logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="45" stroke="url(#gradient)" stroke-width="2"/>
+            <circle cx="50" cy="50" r="35" stroke="url(#gradient)" stroke-width="2" stroke-dasharray="4 4">
+                <animateTransform
+                    attributeName="transform"
+                    attributeType="XML"
+                    type="rotate"
+                    from="0 50 50"
+                    to="360 50 50"
+                    dur="10s"
+                    repeatCount="indefinite"
+                />
+            </circle>
+            <circle cx="50" cy="50" r="25" fill="url(#gradient)" opacity="0.5">
+                <animate
+                    attributeName="opacity"
+                    values="0.5;0.8;0.5"
+                    dur="4s"
+                    repeatCount="indefinite"
+                />
+            </circle>
+            <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#7928ca"/>
+                    <stop offset="50%" style="stop-color:#ff0080"/>
+                    <stop offset="100%" style="stop-color:#ff4d4d"/>
+                </linearGradient>
+            </defs>
+        </svg>
+        <div class="hero-content">
+            <h1>Color Guide Hub</h1>
+            <p>Your comprehensive resource for colors, palettes, and color tools</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Terminal Colors</h2>
+            <p>Discover the world of terminal colors and create visually stunning terminals.</p>
+            <a href="terminal-colors.html">Learn More</a>
+        </div>
+        <div class="card">
+            <h2>Color Palettes</h2>
+            <p>Create stunning color palettes for your projects and designs.</p>
+            <a href="color-palettes.html">Learn More</a>
+        </div>
+        <div class="card">
+            <h2>Image Colors</h2>
+            <p>Extract colors from images and create visually stunning art.</p>            
+            <a href="image-colors.html">Learn More</a>
+        </div>
+        <div class="card">
+            <h2>256 Colors</h2>
+            <p>Discover the power of 256 colors and create stunning visuals.</p>
+            <a href="ansi-256.html">Learn More</a>
+        </div>
+        <div class="card">
+            <h2>Color Interpolation</h2>
+            <p>Interpolate between colors and create dynamic color effects.</p>
+            <a href="color-interpolation.html">Learn More</a>
+        </div>
+        <div class="card">
+            <h2>Material Palette</h2>
+            <p>Explore the possibilities of accent colors.</p>
+            <a href="material-palette.html">Learn More</a>
+        </div>
+    </div>        
+</body>
+</html>         block.appendChild(block); -->                                   

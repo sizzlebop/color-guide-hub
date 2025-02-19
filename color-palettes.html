@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Palettes</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #13151a, #090909);
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 0% 0%, #7928ca15 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, #ff008015 0%, transparent 50%);
+            z-index: -1;
+        }
+        .navbar {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-links {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+        }
+        .nav-links a:hover {
+            color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .category {
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.6s ease forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .category:nth-child(2) { animation-delay: 0.2s; }
+        .category:nth-child(3) { animation-delay: 0.4s; }
+        .category:nth-child(4) { animation-delay: 0.6s; }
+        .category:nth-child(5) { animation-delay: 0.8s; }
+        h2 {
+            text-align: center;
+            margin: 30px 0;
+            color: #fff;
+            font-size: 24px;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .palette {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .palette:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .palette-colors {
+            height: 150px;
+            display: flex;
+        }
+        .palette-color {
+            flex: 1;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .palette-color:hover {
+            transform: scale(1.05);
+        }
+        .palette-info {
+            padding: 1rem;
+        }
+        .palette-name {
+            margin: 0 0 0.5rem;
+            color: #fff;
+        }
+        .color-codes {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #999;
+        }
+        .tooltip {
+            position: fixed;
+            background: rgba(42, 42, 42, 0.95);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="terminal-colors.html">Terminal Colors</a>
+            <a href="color-palettes.html">Color Palettes</a>
+            <a href="image-colors.html">Image Colors</a>
+            <a href="ansi-256.html">256 Colors</a>
+            <a href="color-interpolation.html">Color Interpolation</a>
+            <a href="material-palette.html">Material Palette</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="category">
+            <h2>Nature Inspired</h2>
+            <div class="palette-grid" id="natureGrid"></div>
+        </div>
+
+        <div class="category">
+            <h2>Modern UI</h2>
+            <div class="palette-grid" id="modernGrid"></div>
+        </div>
+
+        <div class="category">
+            <h2>Gradient Palettes</h2>
+            <div class="palette-grid" id="gradientGrid"></div>
+        </div>
+
+        <div class="category">
+            <h2>Vibrant & Bold</h2>
+            <div class="palette-grid" id="vibrantGrid"></div>
+        </div>
+
+        <div class="category">
+            <h2>Pastel & Soft</h2>
+            <div class="palette-grid" id="pastelGrid"></div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        const palettes = {
+            nature: [
+                {
+                    name: "Ocean Depths",
+                    colors: ["#001219", "#005F73", "#0A9396", "#94D2BD", "#E9D8A6"]
+                },
+                {
+                    name: "Forest Canopy",
+                    colors: ["#2D3730", "#4A503D", "#8B8F6D", "#C3B299", "#E8DCC4"]
+                },
+                {
+                    name: "Desert Sunset",
+                    colors: ["#442B48", "#726E60", "#98B06F", "#DACC96", "#D9B48F"]
+                },
+                {
+                    name: "Mountain Lake",
+                    colors: ["#1B4965", "#62B6CB", "#BEE9E8", "#CAE9FF", "#5FA8D3"]
+                }
+            ],
+            modern: [
+                {
+                    name: "Dark Mode",
+                    colors: ["#0F0F0F", "#232323", "#373737", "#4F4F4F", "#6B6B6B"]
+                },
+                {
+                    name: "Tech Minimal",
+                    colors: ["#14213D", "#FCA311", "#E5E5E5", "#FFFFFF", "#000000"]
+                },
+                {
+                    name: "Clean Slate",
+                    colors: ["#2B2D42", "#8D99AE", "#EDF2F4", "#EF233C", "#D90429"]
+                },
+                {
+                    name: "Corporate",
+                    colors: ["#1A535C", "#4ECDC4", "#F7FFF7", "#FF6B6B", "#FFE66D"]
+                }
+            ],
+            gradient: [
+                {
+                    name: "Sunset Gradient",
+                    colors: ["#F8B195", "#F67280", "#C06C84", "#6C5B7B", "#355C7D"]
+                },
+                {
+                    name: "Ocean Gradient",
+                    colors: ["#1A2980", "#26D0CE", "#20BF55", "#01BAEF", "#0CBABA"]
+                },
+                {
+                    name: "Forest Gradient",
+                    colors: ["#134E5E", "#71B280", "#7FC8A9", "#9EBD6E", "#CFEE9E"]
+                },
+                {
+                    name: "Purple Rain",
+                    colors: ["#2C3E50", "#3498DB", "#E74C3C", "#9B59B6", "#F1C40F"]
+                }
+            ],
+            vibrant: [
+                {
+                    name: "Neon Lights",
+                    colors: ["#FF0000", "#00FF00", "#0000FF", "#FF00FF", "#FFFF00"]
+                },
+                {
+                    name: "Pop Art",
+                    colors: ["#FF1E1E", "#FF9C1E", "#FFE61E", "#1EFF1E", "#1E1EFF"]
+                },
+                {
+                    name: "Candy Shop",
+                    colors: ["#FF449F", "#FF7C7C", "#FFA877", "#FFD369", "#00B8A9"]
+                },
+                {
+                    name: "Electric Dreams",
+                    colors: ["#FF0099", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"]
+                }
+            ],
+            pastel: [
+                {
+                    name: "Cotton Candy",
+                    colors: ["#FFE5E5", "#FFF0F0", "#FFDFDF", "#FFE8E8", "#FFF5F5"]
+                },
+                {
+                    name: "Spring Bloom",
+                    colors: ["#E4F1EE", "#B8E1DD", "#A4C5C6", "#CECBD6", "#E7E3E8"]
+                },
+                {
+                    name: "Soft Summer",
+                    colors: ["#F9ECEC", "#F0E4E4", "#E8DCDC", "#DFD3D3", "#D7CBCB"]
+                },
+                {
+                    name: "Dreamy Sky",
+                    colors: ["#CDF0EA", "#F9F9F9", "#F7DBF0", "#BEAEE2", "#CDF0EA"]
+                }
+            ]
+        };
+
+        const tooltip = document.getElementById('tooltip');
+        
+        function createPalette(palette) {
+            const div = document.createElement('div');
+            div.className = 'palette';
+            
+            const colorsDiv = document.createElement('div');
+            colorsDiv.className = 'palette-colors';
+            
+            palette.colors.forEach(color => {
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'palette-color';
+                colorDiv.style.backgroundColor = color;
+                
+                colorDiv.addEventListener('mousemove', (e) => {
+                    tooltip.style.opacity = '1';
+                    tooltip.textContent = color.toUpperCase();
+                    tooltip.style.left = e.pageX + 10 + 'px';
+                    tooltip.style.top = e.pageY + 10 + 'px';
+                });
+                
+                colorDiv.addEventListener('mouseout', () => {
+                    tooltip.style.opacity = '0';
+                });
+                
+                colorDiv.addEventListener('click', () => {
+                    navigator.clipboard.writeText(color);
+                    const originalText = tooltip.textContent;
+                    tooltip.textContent = 'Copied!';
+                    setTimeout(() => {
+                        tooltip.textContent = originalText;
+                    }, 1000);
+                });
+                
+                colorsDiv.appendChild(colorDiv);
+            });
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'palette-info';
+            
+            const name = document.createElement('h3');
+            name.className = 'palette-name';
+            name.textContent = palette.name;
+            
+            const codes = document.createElement('div');
+            codes.className = 'color-codes';
+            codes.textContent = palette.colors.join(' ');
+            
+            infoDiv.appendChild(name);
+            infoDiv.appendChild(codes);
+            
+            div.appendChild(colorsDiv);
+            div.appendChild(infoDiv);
+            
+            return div;
+        }
+
+        // Populate all grids
+        Object.entries(palettes).forEach(([category, categoryPalettes]) => {
+            const grid = document.getElementById(`${category}Grid`);
+            categoryPalettes.forEach(palette => {
+                grid.appendChild(createPalette(palette));
+            });
+        });
+    </script>
+</body>
+</html>
