@@ -70,6 +70,7 @@
             max-width: 1200px;
             margin: 2rem auto;
             padding: 0 1rem;
+            padding-bottom: 100px;
         }
         .color-section {
             background: rgba(30, 30, 30, 0.8);
@@ -140,21 +141,60 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             z-index: 1;
         }
-        .tooltip {
+        .color-details {
             position: fixed;
-            background: rgba(42, 42, 42, 0.95);
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(30, 30, 30, 0.95);
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            gap: 2rem;
+            align-items: center;
+        }
+        .color-details.active {
+            display: flex;
+        }
+        .color-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .color-info {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        .color-code-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .copy-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
             color: #fff;
             padding: 0.5rem 1rem;
             border-radius: 4px;
-            font-size: 0.9rem;
+            cursor: pointer;
             font-family: monospace;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            white-space: pre-line;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            min-width: 180px;
+            text-align: left;
+        }
+        .copy-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .copy-label {
+            font-size: 0.8rem;
+            color: #999;
+            min-width: 60px;
         }
         .tabs {
             display: flex;
@@ -194,12 +234,12 @@
     <nav class="navbar">
         <div class="nav-links">
             <a href="index.html">Home</a>
-            <a href="terminal-colors.html">Terminal Colors</a>
-            <a href="color-palettes.html">Color Palettes</a>
             <a href="image-colors.html">Image Colors</a>
-            <a href="ansi-256.html">256 Colors</a>
+            <a href="color-generator.html">Terminal Colors</a>            
             <a href="color-interpolation.html">Color Interpolation</a>
-            <a href="material-palette.html">Material Palette</a>
+            <a href="color-palettes.html">Color Palettes</a>
+            <a href="palette-preview.html">Material Palette</a>
+            <a href="ansi-256.html">256 Colors</a>
         </div>
     </nav>
 
@@ -212,7 +252,7 @@
         <div id="ansiTab" class="tab-content active">
             <h2>ANSI 256 Color Reference</h2>
             <p class="description">
-                Full 256-color ANSI palette with escape sequences.\nUse with format: \033[38;5;{n}m for foreground\nUse with format: \033[48;5;{n}m for background
+                Full 256-color ANSI palette with color codes
             </p>
 
             <div class="color-section">
@@ -234,7 +274,7 @@
         <div id="xtermTab" class="tab-content">
             <h2>Xterm 256 Color Reference</h2>
             <p class="description">
-                Full 256-color Xterm palette with color codes.\nUse in terminal applications and configurations that support xterm-256color.
+                Full 256-color Xterm palette with color codes
             </p>
 
             <div class="color-section">
@@ -254,10 +294,48 @@
         </div>
     </div>
 
-    <div class="tooltip" id="tooltip"></div>
+    <div class="color-details" id="colorDetails">
+        <div class="color-preview" id="colorPreview"></div>
+        <div class="color-info">
+            <div class="color-code-group">
+                <span class="copy-label">Color:</span>
+                <button class="copy-button" id="colorNumber">-</button>
+            </div>
+            <div class="color-code-group">
+                <span class="copy-label">Hex:</span>
+                <button class="copy-button" id="colorHex">-</button>
+            </div>
+            <div class="color-code-group">
+                <span class="copy-label">FG:</span>
+                <button class="copy-button" id="colorFg">-</button>
+            </div>
+            <div class="color-code-group">
+                <span class="copy-label">BG:</span>
+                <button class="copy-button" id="colorBg">-</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const tooltip = document.getElementById('tooltip');
+        const colorDetails = document.getElementById('colorDetails');
+        const colorPreview = document.getElementById('colorPreview');
+        const colorNumber = document.getElementById('colorNumber');
+        const colorHex = document.getElementById('colorHex');
+        const colorFg = document.getElementById('colorFg');
+        const colorBg = document.getElementById('colorBg');
+        
+        function formatAnsiEscape(type, index) {
+            return `\\033[${type};5;${index}m`;
+        }
+
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text);
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 1000);
+        }
         
         function rgbToHex(r, g, b) {
             return '#' + [r, g, b].map(x => {
@@ -281,28 +359,33 @@
             
             block.textContent = colorIndex;
 
-            block.addEventListener('mousemove', (e) => {
-                tooltip.style.opacity = '1';
-                tooltip.innerHTML = `Color: ${colorIndex}\nHex: ${hex}\nFG: \\033[38;5;${colorIndex}m\nBG: \\033[48;5;${colorIndex}m`;
-                tooltip.style.left = e.pageX + 10 + 'px';
-                tooltip.style.top = e.pageY + 10 + 'px';
-            });
-
-            block.addEventListener('mouseout', () => {
-                tooltip.style.opacity = '0';
-            });
-
             block.addEventListener('click', () => {
-                navigator.clipboard.writeText(hex);
-                const originalText = tooltip.innerHTML;
-                tooltip.innerHTML = 'Copied!';
-                setTimeout(() => {
-                    tooltip.innerHTML = originalText;
-                }, 1000);
+                colorDetails.classList.add('active');
+                colorPreview.style.backgroundColor = hex;
+                
+                const fg = formatAnsiEscape(38, colorIndex);
+                const bg = formatAnsiEscape(48, colorIndex);
+
+                colorNumber.textContent = `${colorIndex}`;
+                colorHex.textContent = hex.toUpperCase();
+                colorFg.textContent = fg;
+                colorBg.textContent = bg;
+                
+                colorNumber.onclick = (e) => copyToClipboard(colorIndex, e.target);
+                colorHex.onclick = (e) => copyToClipboard(hex.toUpperCase(), e.target);
+                colorFg.onclick = (e) => copyToClipboard(fg, e.target);
+                colorBg.onclick = (e) => copyToClipboard(bg, e.target);
             });
 
             return block;
         }
+
+        // Close details panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.color-block') && !e.target.closest('.color-details')) {
+                colorDetails.classList.remove('active');
+            }
+        });
 
         // ANSI Standard Colors (0-15)
         const ansiStandard = [

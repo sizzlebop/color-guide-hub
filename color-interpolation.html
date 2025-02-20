@@ -8,17 +8,34 @@
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             margin: 0;
-            background: #121212;
+            background: linear-gradient(135deg, #13151a, #090909);
             color: #e0e0e0;
             line-height: 1.6;
+            padding-bottom: 100px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 0% 0%, #7928ca15 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, #ff008015 0%, transparent 50%);
+            z-index: -1;
         }
         .navbar {
-            background: #1e1e1e;
+            background: rgba(30, 30, 30, 0.8);
             padding: 1rem 2rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
             position: sticky;
             top: 0;
             z-index: 100;
+            backdrop-filter: blur(10px);
         }
         .nav-links {
             max-width: 1200px;
@@ -31,6 +48,21 @@
             text-decoration: none;
             font-size: 0.9rem;
             transition: color 0.2s;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .nav-links a:hover::after {
+            transform: scaleX(1);
         }
         .nav-links a:hover {
             color: #fff;
@@ -41,11 +73,21 @@
             padding: 0 1rem;
         }
         .interpolation-section {
-            background: #1e1e1e;
+            background: rgba(30, 30, 30, 0.8);
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 2rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeIn 0.6s ease forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         h2 {
             text-align: center;
@@ -121,19 +163,61 @@
             transform: scale(1.05);
             z-index: 1;
         }
-        .tooltip {
+        .color-details {
             position: fixed;
-            background: #2a2a2a;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(30, 30, 30, 0.95);
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            gap: 2rem;
+            align-items: center;
+        }
+        .color-details.active {
+            display: flex;
+        }
+        .color-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .color-info {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .color-code-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .copy-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
             color: #fff;
             padding: 0.5rem 1rem;
             border-radius: 4px;
-            font-size: 0.9rem;
+            cursor: pointer;
             font-family: monospace;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            z-index: 1000;
-            white-space: pre-line;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            min-width: 180px;
+            text-align: left;
+        }
+        .copy-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .copy-label {
+            font-size: 0.8rem;
+            color: #999;
+            min-width: 60px;
         }
     </style>
 </head>
@@ -141,12 +225,12 @@
     <nav class="navbar">
         <div class="nav-links">
             <a href="index.html">Home</a>
-            <a href="terminal-colors.html">Terminal Colors</a>
-            <a href="color-palettes.html">Color Palettes</a>
             <a href="image-colors.html">Image Colors</a>
-            <a href="ansi-256.html">256 Colors</a>
+            <a href="color-generator.html">Terminal Colors</a>            
             <a href="color-interpolation.html">Color Interpolation</a>
-            <a href="material-palette.html">Material Palette</a>
+            <a href="color-palettes.html">Color Palettes</a>
+            <a href="palette-preview.html">Material Palette</a>
+            <a href="ansi-256.html">256 Colors</a>
         </div>
     </nav>
 
@@ -179,17 +263,69 @@
         </div>
     </div>
 
-    <div class="tooltip" id="tooltip"></div>
+    <div class="color-details" id="colorDetails">
+        <div class="color-preview" id="colorPreview"></div>
+        <div class="color-info">
+            <div class="color-code-group">
+                <span class="copy-label">Hex:</span>
+                <button class="copy-button" id="colorHex">-</button>
+            </div>
+            <div class="color-code-group">
+                <span class="copy-label">RGB:</span>
+                <button class="copy-button" id="colorRgb">-</button>
+            </div>
+            <div class="color-code-group">
+                <span class="copy-label">HSL:</span>
+                <button class="copy-button" id="colorHsl">-</button>
+            </div>
+            <div class="color-code-group">
+                <span class="copy-label">CSS:</span>
+                <button class="copy-button" id="colorCss">-</button>
+            </div>
+            <div class="color-code-group">
+                <span class="copy-label">SCSS:</span>
+                <button class="copy-button" id="colorScss">-</button>
+            </div>
+            <div class="color-code-group">
+                <span class="copy-label">HTML:</span>
+                <button class="copy-button" id="colorHtml">-</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Color conversion functions
+        const startColorInput = document.getElementById('startColor');
+        const endColorInput = document.getElementById('endColor');
+        const stepsInput = document.getElementById('steps');
+        const resultStrip = document.getElementById('resultStrip');
+        const spaceButtons = document.querySelectorAll('.space-button');
+        const colorDetails = document.getElementById('colorDetails');
+        const colorPreview = document.getElementById('colorPreview');
+        const colorHex = document.getElementById('colorHex');
+        const colorRgb = document.getElementById('colorRgb');
+        const colorHsl = document.getElementById('colorHsl');
+        const colorCss = document.getElementById('colorCss');
+        const colorScss = document.getElementById('colorScss');
+        const colorHtml = document.getElementById('colorHtml');
+
+        let currentSpace = 'rgb';
+
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text);
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 1000);
+        }
+
         function hexToRgb(hex) {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? [
-                parseInt(result[1], 16),
-                parseInt(result[2], 16),
-                parseInt(result[3], 16)
-            ] : null;
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
         }
 
         function rgbToHex(r, g, b) {
@@ -200,9 +336,7 @@
         }
 
         function rgbToHsl(r, g, b) {
-            r /= 255;
-            g /= 255;
-            b /= 255;
+            r /= 255; g /= 255; b /= 255;
             const max = Math.max(r, g, b);
             const min = Math.min(r, g, b);
             let h, s, l = (max + min) / 2;
@@ -220,13 +354,56 @@
                 h /= 6;
             }
 
-            return [h * 360, s * 100, l * 100];
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function updateColorDetails(hex) {
+            const rgb = hexToRgb(hex);
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            const hexUpper = hex.toUpperCase();
+
+            colorPreview.style.backgroundColor = hex;
+            colorHex.textContent = hexUpper;
+            colorRgb.textContent = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            colorHsl.textContent = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+            colorCss.textContent = `color: ${hexUpper};`;
+            colorScss.textContent = `$color: ${hexUpper};`;
+            colorHtml.textContent = `<div style="color: ${hexUpper};">Text</div>`;
+
+            colorHex.onclick = (e) => copyToClipboard(hexUpper, e.target);
+            colorRgb.onclick = (e) => copyToClipboard(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`, e.target);
+            colorHsl.onclick = (e) => copyToClipboard(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, e.target);
+            colorCss.onclick = (e) => copyToClipboard(`color: ${hexUpper};`, e.target);
+            colorScss.onclick = (e) => copyToClipboard(`$color: ${hexUpper};`, e.target);
+            colorHtml.onclick = (e) => copyToClipboard(`<div style="color: ${hexUpper};">Text</div>`, e.target);
+        }
+
+        function lerp(start, end, t) {
+            return start * (1 - t) + end * t;
+        }
+
+        function interpolateRGB(color1, color2, steps) {
+            const rgb1 = hexToRgb(color1);
+            const rgb2 = hexToRgb(color2);
+            const colors = [];
+
+            for (let i = 0; i < steps; i++) {
+                const t = i / (steps - 1);
+                const r = lerp(rgb1.r, rgb2.r, t);
+                const g = lerp(rgb1.g, rgb2.g, t);
+                const b = lerp(rgb1.b, rgb2.b, t);
+                colors.push(rgbToHex(r, g, b));
+            }
+
+            return colors;
         }
 
         function hslToRgb(h, s, l) {
-            h /= 360;
-            s /= 100;
-            l /= 100;
+            h /= 360; s /= 100; l /= 100;
             let r, g, b;
 
             if (s === 0) {
@@ -251,38 +428,16 @@
             return [r * 255, g * 255, b * 255];
         }
 
-        // Linear interpolation helper
-        function lerp(start, end, t) {
-            return start * (1 - t) + end * t;
-        }
-
-        // Color interpolation functions
-        function interpolateRGB(color1, color2, steps) {
-            const rgb1 = hexToRgb(color1);
-            const rgb2 = hexToRgb(color2);
-            const colors = [];
-
-            for (let i = 0; i < steps; i++) {
-                const t = i / (steps - 1);
-                const r = lerp(rgb1[0], rgb2[0], t);
-                const g = lerp(rgb1[1], rgb2[1], t);
-                const b = lerp(rgb1[2], rgb2[2], t);
-                colors.push(rgbToHex(r, g, b));
-            }
-
-            return colors;
-        }
-
         function interpolateHSL(color1, color2, steps) {
             const rgb1 = hexToRgb(color1);
             const rgb2 = hexToRgb(color2);
-            const hsl1 = rgbToHsl(...rgb1);
-            const hsl2 = rgbToHsl(...rgb2);
+            const hsl1 = rgbToHsl(rgb1.r, rgb1.g, rgb1.b);
+            const hsl2 = rgbToHsl(rgb2.r, rgb2.g, rgb2.b);
             const colors = [];
 
             // Handle hue interpolation
-            let h1 = hsl1[0];
-            let h2 = hsl2[0];
+            let h1 = hsl1.h;
+            let h2 = hsl2.h;
             const hueDiff = h2 - h1;
             if (Math.abs(hueDiff) > 180) {
                 if (hueDiff > 0) {
@@ -295,10 +450,10 @@
             for (let i = 0; i < steps; i++) {
                 const t = i / (steps - 1);
                 const h = lerp(h1, h2, t) % 360;
-                const s = lerp(hsl1[1], hsl2[1], t);
-                const l = lerp(hsl1[2], hsl2[2], t);
+                const s = lerp(hsl1.s, hsl2.s, t);
+                const l = lerp(hsl1.l, hsl2.l, t);
                 const rgb = hslToRgb(h, s, l);
-                colors.push(rgbToHex(...rgb));
+                colors.push(rgbToHex(...rgb.map(Math.round)));
             }
 
             return colors;
@@ -312,16 +467,6 @@
         function interpolateLCH(color1, color2, steps) {
             return interpolateHSL(color1, color2, steps);
         }
-
-        // UI handling
-        const startColorInput = document.getElementById('startColor');
-        const endColorInput = document.getElementById('endColor');
-        const stepsInput = document.getElementById('steps');
-        const resultStrip = document.getElementById('resultStrip');
-        const spaceButtons = document.querySelectorAll('.space-button');
-        const tooltip = document.getElementById('tooltip');
-
-        let currentSpace = 'rgb';
 
         function updateColors() {
             const startColor = startColorInput.value;
@@ -344,29 +489,14 @@
             }
 
             resultStrip.innerHTML = '';
-            colors.forEach((color, index) => {
+            colors.forEach((color) => {
                 const div = document.createElement('div');
                 div.className = 'result-color';
                 div.style.backgroundColor = color;
                 
-                div.addEventListener('mousemove', (e) => {
-                    tooltip.style.opacity = '1';
-                    tooltip.textContent = `Step ${index + 1}\n${color.toUpperCase()}`;
-                    tooltip.style.left = e.pageX + 10 + 'px';
-                    tooltip.style.top = e.pageY + 10 + 'px';
-                });
-
-                div.addEventListener('mouseout', () => {
-                    tooltip.style.opacity = '0';
-                });
-
                 div.addEventListener('click', () => {
-                    navigator.clipboard.writeText(color);
-                    const originalText = tooltip.textContent;
-                    tooltip.textContent = 'Copied!';
-                    setTimeout(() => {
-                        tooltip.textContent = originalText;
-                    }, 1000);
+                    colorDetails.classList.add('active');
+                    updateColorDetails(color);
                 });
 
                 resultStrip.appendChild(div);
@@ -384,6 +514,13 @@
 
         [startColorInput, endColorInput, stepsInput].forEach(input => {
             input.addEventListener('input', updateColors);
+        });
+
+        // Close details panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.result-color') && !e.target.closest('.color-details')) {
+                colorDetails.classList.remove('active');
+            }
         });
 
         updateColors();

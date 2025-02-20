@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Palette Generator</title>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      color: #e0e0e0;
+      line-height: 1.6;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #13151a, #090909);
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 0% 0%, #7928ca15 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, #ff008015 0%, transparent 50%);
+      z-index: -1;
+    }
+    .navbar {
+      background: rgba(30, 30, 30, 0.8);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-links {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 2rem;
+    }
+    .nav-links a {
+      color: #e0e0e0;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(45deg, #7928ca, #ff0080);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+    .nav-links a:hover::after {
+      transform: scaleX(1);
+    }
+    .nav-links a:hover {
+      color: #fff;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      padding-bottom: 100px;
+    }
+    .section {
+      background: rgba(30, 30, 30, 0.8);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.6s ease forwards;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    h2 {
+      text-align: center;
+      margin: 30px 0;
+      color: #fff;
+      font-size: 24px;
+      background: linear-gradient(45deg, #7928ca, #ff0080);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .color-picker-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+    }
+    .color-input {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 400px;
+    }
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: center;
+    }
+    input[type="text"] {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-family: monospace;
+      width: 120px;
+    }
+    input[type="color"] {
+      width: 50px;
+      height: 50px;
+      padding: 0;
+      border: none;
+      border-radius: 4px;
+      background: none;
+      cursor: pointer;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+    input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 4px;
+    }
+    button {
+      background: linear-gradient(45deg, #7928ca, #ff0080);
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .harmony-options {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+    .harmony-button {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .harmony-button.active {
+      background: linear-gradient(45deg, #7928ca, #ff0080);
+    }
+    .palette {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .color-block {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .color-block:hover {
+      transform: translateY(-5px);
+    }
+    .color-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 0.5rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      text-align: center;
+      backdrop-filter: blur(5px);
+    }
+    .color-details {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(30, 30, 30, 0.95);
+      padding: 1rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+      display: none;
+      justify-content: center;
+      gap: 2rem;
+      align-items: center;
+    }
+    .color-details.active {
+      display: flex;
+    }
+    .color-preview {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .color-info-panel {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .color-picker-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .color-code-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .copy-button {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: monospace;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      min-width: 180px;
+      text-align: left;
+    }
+    .copy-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .copy-label {
+      font-size: 0.8rem;
+      color: #999;
+      min-width: 60px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="image-colors.html">Image Colors</a>
+      <a href="color-generator.html">Terminal Colors</a>            
+      <a href="color-interpolation.html">Color Interpolation</a>
+      <a href="color-palettes.html">Color Palettes</a>
+      <a href="palette-preview.html">Material Palette</a>
+      <a href="ansi-256.html">256 Colors</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="section">
+      <h2>Color Palette Generator</h2>
+      <div class="color-picker-section">
+        <div class="color-input">
+          <div class="input-group">
+            <input type="color" id="colorInput" value="#ff0000" />
+            <input type="text" id="hexInput" value="#ff0000" placeholder="#ff0000" />
+            <button onclick="updateFromHex()">Update</button>
+          </div>
+          <div class="harmony-options">
+            <button class="harmony-button active" data-harmony="complementary">Complementary</button>
+            <button class="harmony-button" data-harmony="analogous">Analogous</button>
+            <button class="harmony-button" data-harmony="triadic">Triadic</button>
+            <button class="harmony-button" data-harmony="split">Split Complementary</button>
+            <button class="harmony-button" data-harmony="tetradic">Tetradic</button>
+            <button class="harmony-button" data-harmony="monochromatic">Monochromatic</button>
+          </div>
+        </div>
+      </div>
+      <div class="palette" id="harmonicPalette"></div>
+    </div>
+
+    <div class="section">
+      <h2>Manual Palette Builder</h2>
+      <div class="palette manual-palette" id="manualPalette"></div>
+    </div>
+  </div>
+
+  <div class="color-details" id="colorDetails">
+    <div class="color-preview" id="colorPreview"></div>
+    <div class="color-info-panel">
+      <div class="color-code-group">
+        <span class="copy-label">Hex:</span>
+        <button class="copy-button" id="colorHex">-</button>
+      </div>
+      <div class="color-code-group">
+        <span class="copy-label">RGB:</span>
+        <button class="copy-button" id="colorRgb">-</button>
+      </div>
+      <div class="color-code-group">
+        <span class="copy-label">HSL:</span>
+        <button class="copy-button" id="colorHsl">-</button>
+      </div>
+      <div class="color-code-group">
+        <span class="copy-label">CSS:</span>
+        <button class="copy-button" id="colorCss">-</button>
+      </div>
+      <div class="color-code-group">
+        <span class="copy-label">SCSS:</span>
+        <button class="copy-button" id="colorScss">-</button>
+      </div>
+      <div class="color-code-group">
+        <span class="copy-label">HTML:</span>
+        <button class="copy-button" id="colorHtml">-</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const colorInput = document.getElementById('colorInput');
+    const hexInput = document.getElementById('hexInput');
+    const harmonicPalette = document.getElementById('harmonicPalette');
+    const manualPalette = document.getElementById('manualPalette');
+    const harmonyButtons = document.querySelectorAll('.harmony-button');
+    const colorDetails = document.getElementById('colorDetails');
+    const colorPreview = document.getElementById('colorPreview');
+    const colorHex = document.getElementById('colorHex');
+    const colorRgb = document.getElementById('colorRgb');
+    const colorHsl = document.getElementById('colorHsl');
+    const colorCss = document.getElementById('colorCss');
+    const colorScss = document.getElementById('colorScss');
+    const colorHtml = document.getElementById('colorHtml');
+
+    let currentColor = '#ff0000';
+    let currentHarmony = 'complementary';
+
+    // Color conversion utilities
+    function hexToHsl(hex) {
+      let r = parseInt(hex.slice(1, 3), 16) / 255;
+      let g = parseInt(hex.slice(3, 5), 16) / 255;
+      let b = parseInt(hex.slice(5, 7), 16) / 255;
+
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+
+      return {
+        h: h * 360,
+        s: s * 100,
+        l: l * 100
+      };
+    }
+
+    function hslToHex(h, s, l) {
+      h /= 360;
+      s /= 100;
+      l /= 100;
+      let r, g, b;
+
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+        };
+
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+      }
+
+      const toHex = x => {
+        const hex = Math.round(x * 255).toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      };
+
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    }
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
+
+    // Helper functions for harmony variations
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+    function modifyColor(h, s, l, dh, ds, dl) {
+      const newH = (h + dh + 360) % 360;
+      const newS = clamp(s + ds, 0, 100);
+      const newL = clamp(l + dl, 0, 100);
+      return [newH, newS, newL];
+    }
+
+    // Color harmony functions with fixed offsets for variation
+    function getHarmonicColors(baseHex) {
+      const hsl = hexToHsl(baseHex);
+      let colors = [];
+
+      switch (currentHarmony) {
+        case 'complementary':
+          colors = [
+            [hsl.h, hsl.s, hsl.l],                                        // Base
+            modifyColor(hsl.h, hsl.s, hsl.l, 180, 0, 0),                     // Complement
+            modifyColor(hsl.h, hsl.s, hsl.l, 0, -10, +10),                   // Variation of base
+            modifyColor(hsl.h, hsl.s, hsl.l, 180, -10, +10),                 // Variation of complement
+            modifyColor(hsl.h, hsl.s, hsl.l, 0, -20, +20),                   // More variation of base
+            modifyColor(hsl.h, hsl.s, hsl.l, 180, -20, +20)                  // More variation of complement
+          ];
+          break;
+        case 'analogous':
+          colors = [
+            [hsl.h, hsl.s, hsl.l],                                        // Base
+            modifyColor(hsl.h, hsl.s, hsl.l, -30, 0, 0),                     // -30° hue
+            modifyColor(hsl.h, hsl.s, hsl.l, +30, 0, 0),                     // +30° hue
+            modifyColor(hsl.h, hsl.s, hsl.l, -60, 0, 0),                     // -60° hue
+            modifyColor(hsl.h, hsl.s, hsl.l, +60, 0, 0),                     // +60° hue
+            modifyColor(hsl.h, hsl.s, hsl.l, 0, -10, +10)                    // Variation of base
+          ];
+          break;
+        case 'triadic':
+          colors = [
+            [hsl.h, hsl.s, hsl.l],                                        // Base
+            modifyColor(hsl.h, hsl.s, hsl.l, +120, 0, 0),                    // +120° hue
+            modifyColor(hsl.h, hsl.s, hsl.l, +240, 0, 0),                    // +240° hue
+            modifyColor(hsl.h, hsl.s, hsl.l, 0, -10, +10),                   // Variation of base
+            modifyColor(hsl.h, hsl.s, hsl.l, +120, -10, +10),                 // Variation of first triad
+            modifyColor(hsl.h, hsl.s, hsl.l, +240, -10, +10)                  // Variation of second triad
+          ];
+          break;
+        case 'split':
+          colors = [
+            [hsl.h, hsl.s, hsl.l],                                        // Base
+            modifyColor(hsl.h, hsl.s, hsl.l, +150, 0, 0),                    // +150° hue
+            modifyColor(hsl.h, hsl.s, hsl.l, +210, 0, 0),                    // +210° hue
+            modifyColor(hsl.h, hsl.s, hsl.l, 0, -10, +10),                   // Variation of base
+            modifyColor(hsl.h, hsl.s, hsl.l, +150, -10, +10),                 // Variation of first split
+            modifyColor(hsl.h, hsl.s, hsl.l, +210, -10, +10)                  // Variation of second split
+          ];
+          break;
+        case 'tetradic':
+          colors = [
+            [hsl.h, hsl.s, hsl.l],                                        // Base
+            modifyColor(hsl.h, hsl.s, hsl.l, +90, 0, 0),                     // +90° hue
+            modifyColor(hsl.h, hsl.s, hsl.l, +180, 0, 0),                    // +180° hue (complement)
+            modifyColor(hsl.h, hsl.s, hsl.l, +270, 0, 0),                    // +270° hue
+            modifyColor(hsl.h, hsl.s, hsl.l, 0, -10, +10),                   // Variation of base
+            modifyColor(hsl.h, hsl.s, hsl.l, +180, -10, +10)                 // Variation of complement
+          ];
+          break;
+        case 'monochromatic':
+          colors = [
+            [hsl.h, hsl.s, hsl.l],                                        // Base
+            modifyColor(hsl.h, hsl.s, hsl.l, 0, +10, -10),                   // Slightly more saturated, darker
+            modifyColor(hsl.h, hsl.s, hsl.l, 0, -10, +10),                   // Slightly less saturated, lighter
+            modifyColor(hsl.h, hsl.s, hsl.l, 0, +20, -20),                   // Even more saturated and darker
+            modifyColor(hsl.h, hsl.s, hsl.l, 0, -20, +20),                   // Even less saturated and lighter
+            modifyColor(hsl.h, hsl.s, hsl.l, 0, 0, -15)                      // A deeper shade
+          ];
+          break;
+      }
+
+      return colors.map(([h, s, l]) => {
+        h = (h + 360) % 360;
+        s = Math.min(100, Math.max(0, s));
+        l = Math.min(100, Math.max(0, l));
+        return hslToHex(h, s, l);
+      });
+    }
+
+    function updateFromHex() {
+      const hex = hexInput.value;
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+        currentColor = hex;
+        colorInput.value = hex;
+        updatePalette();
+      }
+    }
+
+    function updateFromColorInput(e) {
+      currentColor = e.target.value;
+      hexInput.value = currentColor.toUpperCase();
+      updatePalette();
+    }
+
+    function updatePalette() {
+      const colors = getHarmonicColors(currentColor);
+      harmonicPalette.innerHTML = '';
+      colors.forEach(color => {
+        const block = createColorBlock(color);
+        harmonicPalette.appendChild(block);
+      });
+    }
+
+    function createColorBlock(color) {
+      const block = document.createElement('div');
+      block.className = 'color-block';
+      block.style.backgroundColor = color;
+
+      const info = document.createElement('div');
+      info.className = 'color-info';
+      info.textContent = color.toUpperCase();
+      info.style.color = getBrightnessColor(color);
+
+      block.appendChild(info);
+      block.addEventListener('click', () => showColorDetails(color));
+      return block;
+    }
+
+    function getBrightnessColor(hex) {
+      const rgb = hexToRgb(hex);
+      const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+      return brightness > 128 ? '#000' : '#fff';
+    }
+
+    function showColorDetails(hex) {
+      const rgb = hexToRgb(hex);
+      const hsl = hexToHsl(hex);
+      const hexUpper = hex.toUpperCase();
+
+      colorDetails.classList.add('active');
+      colorPreview.style.backgroundColor = hex;
+      colorHex.textContent = hexUpper;
+      colorRgb.textContent = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+      colorHsl.textContent = `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`;
+      colorCss.textContent = `color: ${hexUpper};`;
+      colorScss.textContent = `$color: ${hexUpper};`;
+      colorHtml.textContent = `<div style="color: ${hexUpper};">Text</div>`;
+
+      const copyButtons = document.querySelectorAll('.copy-button');
+      copyButtons.forEach(button => {
+        button.onclick = () => {
+          navigator.clipboard.writeText(button.textContent);
+          const originalText = button.textContent;
+          button.textContent = 'Copied!';
+          setTimeout(() => (button.textContent = originalText), 1000);
+        };
+      });
+    }
+
+    function initManualPalette() {
+      manualPalette.innerHTML = '';
+      for (let i = 0; i < 6; i++) {
+        const block = document.createElement('div');
+        block.className = 'color-block';
+        block.style.backgroundColor = '#ffffff';
+
+        const picker = document.createElement('input');
+        picker.type = 'color';
+        picker.className = 'color-picker-overlay';
+        picker.value = '#ffffff';
+
+        const info = document.createElement('div');
+        info.className = 'color-info';
+        info.textContent = '#FFFFFF';
+        info.style.color = '#000000';
+
+        picker.addEventListener('input', (e) => {
+          const color = e.target.value.toUpperCase();
+          block.style.backgroundColor = color;
+          info.textContent = color;
+          info.style.color = getBrightnessColor(color);
+        });
+
+        picker.addEventListener('change', (e) => {
+          const color = e.target.value.toUpperCase();
+          block.style.backgroundColor = color;
+          info.textContent = color;
+          info.style.color = getBrightnessColor(color);
+          block.setAttribute('data-color', color);
+        });
+
+        block.addEventListener('click', (e) => {
+          if (e.target === block) {
+            picker.click();
+          }
+        });
+
+        block.appendChild(picker);
+        block.appendChild(info);
+        manualPalette.appendChild(block);
+
+        // Make the block clickable to open color picker
+        block.style.cursor = 'pointer';
+      }
+
+      // Add click to copy functionality
+      manualPalette.addEventListener('click', (e) => {
+        const colorBlock = e.target.closest('.color-block');
+        if (colorBlock && !e.target.matches('input')) {
+          const color = colorBlock.querySelector('.color-info').textContent;
+          showColorDetails(color);
+        }
+      });
+    }
+
+    // Event listeners
+    colorInput.addEventListener('input', updateFromColorInput);
+    harmonyButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        harmonyButtons.forEach(b => b.classList.remove('active'));
+        button.classList.add('active');
+        currentHarmony = button.dataset.harmony;
+        updatePalette();
+      });
+    });
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.color-block') && !e.target.closest('.color-details')) {
+        colorDetails.classList.remove('active');
+      }
+    });
+
+    // Initialize
+    updatePalette();
+    initManualPalette();
+  </script>
+</body>
+</html>

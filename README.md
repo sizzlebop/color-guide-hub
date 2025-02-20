@@ -5,22 +5,22 @@ A collection of color-related tools and guides for developers and designers.
 ## Features
 
 * **ANSI 256 Colors** - Reference guide for ANSI 256 color codes used in terminal applications
+* **Color Generator** - Create color harmonies and custom color palettes
 * **Color Interpolation** - Tool for generating color gradients and transitions
 * **Color Palettes** - Collection of pre-made color palettes and palette generation tools
 * **Image Colors** - Extract color palettes from images
-* **Material Design Colors** - Reference for Material Design color system
-* **Terminal Colors** - Guide for working with colors in terminal environments
+* **Palette Preview** - Preview and test color combinations in different contexts
 
 ## Usage
 
 Each tool is accessible through its own dedicated page:
 
 * [ANSI 256 Colors Guide](ansi-256.html)
+* [Color Generator](color-generator.html)
 * [Color Interpolation Tool](color-interpolation.html)
 * [Color Palettes](color-palettes.html)
 * [Image Color Extraction](image-colors.html)
-* [Material Design Palette](material-palette.html)
-* [Terminal Colors Guide](terminal-colors.html)
+* [Palette Preview](palette-preview.html)
 
 ## Development
 

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palette Preview</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            line-height: 1.6;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #13151a, #090909);
+            color: #e0e0e0;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 0% 0%, #7928ca15 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, #ff008015 0%, transparent 50%);
+            z-index: -1;
+        }
+        .navbar {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-links {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .color-picker-section {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .example-site {
+            padding: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+        .example-header {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        .example-nav {
+            display: flex;
+            gap: 2rem;
+        }
+        .example-nav a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .example-nav a:hover {
+            opacity: 1;
+        }
+        .example-content {
+            min-height: 400px;
+            padding: 2rem;
+        }
+        .example-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .example-button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .example-button:hover {
+            transform: translateY(-2px);
+        }
+        .example-checkbox {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-radius: 3px;
+            margin-right: 8px;
+            cursor: pointer;
+            vertical-align: middle;
+            transition: all 0.3s ease;
+        }
+        .example-checkbox:checked {
+            border-color: transparent;
+            position: relative;
+        }
+        .example-checkbox:checked::before {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+        }
+        .example-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: white;
+            margin: 0 4px;
+        }
+        .example-link {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .example-link:hover {
+            text-decoration: underline;
+        }
+        .example-progress {
+            width: 100%;
+            height: 4px;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 2px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        .example-progress-bar {
+            height: 100%;
+            width: 75%;
+            transition: background-color 0.3s ease;
+        }
+        .picker-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .color-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .color-input input[type="color"] {
+            width: 80px;
+            height: 80px;
+            padding: 0;
+            border: none;
+            border-radius: 12px;
+            background: none;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .color-input input[type="color"]:hover {
+            transform: scale(1.05);
+        }
+        .color-input input[type="text"] {
+            width: 100px;
+            padding: 0.5rem;
+            border: 1px solid #444;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            text-align: center;
+        }
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .tab {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab.active {
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+        }
+        h2 {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 24px;
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .button {
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .dark {
+            background: #121212;
+        }
+        .light {
+            background: #ffffff;
+        }
+        /* Base theme styles */
+        .dark {
+            background: #121212;
+        }
+        .dark .example-content {
+            background: #1E1E1E;
+        }
+        .dark .example-card {
+            background: #2D2D2D;
+            color: #E0E0E0;
+        }
+        .light {
+            background: #ffffff;
+        }
+        .light .example-content {
+            background: #F8F9FA;
+        }
+        .light .example-card {
+            background: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: #333333;
+        }
+        /* Consistent header styling for both themes */
+        .example-header {
+            color: #ffffff;
+        }
+        .example-nav a {
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="image-colors.html">Image Colors</a>
+            <a href="color-generator.html">Terminal Colors</a>            
+            <a href="color-interpolation.html">Color Interpolation</a>
+            <a href="color-palettes.html">Color Palettes</a>
+            <a href="palette-preview.html">Material Palette</a>
+            <a href="ansi-256.html">256 Colors</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="color-picker-section">
+            <h2>Palette Preview</h2>
+            <div class="tabs">
+                <button class="tab active" onclick="switchMode('basic')">Basic</button>
+                <button class="tab" onclick="switchMode('palette')">6-Color Palette</button>
+            </div>
+            <div id="basicMode" class="picker-container">
+                <div class="color-input">
+                    <label>Primary Color</label>
+                    <input type="color" id="primaryColor" value="#2196F3">
+                    <input type="text" id="primaryColorText" value="#2196F3" onchange="updateColorPicker('primary')">
+                </div>
+                <div class="color-input">
+                    <label>Accent Color</label>
+                    <input type="color" id="accentColor" value="#FF4081">
+                    <input type="text" id="accentColorText" value="#FF4081" onchange="updateColorPicker('accent')">
+                </div>
+            </div>
+            <div id="paletteMode" class="picker-container" style="display: none;">
+                <div class="color-input">
+                    <label>Color 1</label>
+                    <input type="color" id="color1" value="#2196F3">
+                    <input type="text" id="color1Text" value="#2196F3" onchange="updateColorPicker('1')">
+                </div>
+                <div class="color-input">
+                    <label>Color 2</label>
+                    <input type="color" id="color2" value="#4CAF50">
+                    <input type="text" id="color2Text" value="#4CAF50" onchange="updateColorPicker('2')">
+                </div>
+                <div class="color-input">
+                    <label>Color 3</label>
+                    <input type="color" id="color3" value="#FFC107">
+                    <input type="text" id="color3Text" value="#FFC107" onchange="updateColorPicker('3')">
+                </div>
+                <div class="color-input">
+                    <label>Color 4</label>
+                    <input type="color" id="color4" value="#E91E63">
+                    <input type="text" id="color4Text" value="#E91E63" onchange="updateColorPicker('4')">
+                </div>
+                <div class="color-input">
+                    <label>Color 5</label>
+                    <input type="color" id="color5" value="#9C27B0">
+                    <input type="text" id="color5Text" value="#9C27B0" onchange="updateColorPicker('5')">
+                </div>
+                <div class="color-input">
+                    <label>Color 6</label>
+                    <input type="color" id="color6" value="#FF5722">
+                    <input type="text" id="color6Text" value="#FF5722" onchange="updateColorPicker('6')">
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-grid">
+            <div class="color-picker-section example-site dark" id="darkUI">
+                <div class="example-header">
+                    <div class="logo">Dark Theme</div>
+                    <nav class="example-nav">
+                        <a href="#">Home</a>
+                        <a href="#">Features</a>
+                        <a href="#">About</a>
+                        <a href="#">Contact</a>
+                    </nav>
+                </div>
+                <div class="example-content">
+                    <div class="example-card">
+                        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                            <input type="checkbox" class="example-checkbox" checked>
+                            <h3 style="margin: 0;">Dark Mode Preview</h3>
+                        </div>
+                        <p>This is how your color scheme looks in dark mode.</p>
+                        <div class="example-tags">
+                            <span class="example-tag">Primary</span>
+                            <span class="example-tag">Secondary</span>
+                            <span class="example-tag warning">Important</span>
+                        </div>
+                        <div class="example-progress">
+                            <div class="example-progress-bar"></div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <button class="example-button" style="flex: 1">Primary Action</button>
+                            <button class="example-button" style="flex: 1; opacity: 0.8">Secondary</button>
+                        </div>
+                    </div>
+                    <div class="example-card">
+                        <h3>Interactive Elements</h3>
+                        <p>Explore our <a href="#" class="example-link">documentation</a> or visit the <a href="#" class="example-link">tutorials</a>.</p>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
+                            <input type="checkbox" class="example-checkbox">
+                            <span>Option 1</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                            <input type="checkbox" class="example-checkbox" checked>
+                            <span>Option 2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="color-picker-section example-site light" id="lightUI">
+                <div class="example-header">
+                    <div class="logo">Light Theme</div>
+                    <nav class="example-nav">
+                        <a href="#">Home</a>
+                        <a href="#">Features</a>
+                        <a href="#">About</a>
+                        <a href="#">Contact</a>
+                    </nav>
+                </div>
+                <div class="example-content">
+                    <div class="example-card">
+                        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                            <input type="checkbox" class="example-checkbox" checked>
+                            <h3 style="margin: 0;">Light Mode Preview</h3>
+                        </div>
+                        <p>This is how your color scheme looks in light mode.</p>
+                        <div class="example-tags">
+                            <span class="example-tag">Primary</span>
+                            <span class="example-tag">Secondary</span>
+                            <span class="example-tag warning">Important</span>
+                        </div>
+                        <div class="example-progress">
+                            <div class="example-progress-bar"></div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <button class="example-button" style="flex: 1">Primary Action</button>
+                            <button class="example-button" style="flex: 1; opacity: 0.8">Secondary</button>
+                        </div>
+                    </div>
+                    <div class="example-card">
+                        <h3>Interactive Elements</h3>
+                        <p>Explore our <a href="#" class="example-link">documentation</a> or visit the <a href="#" class="example-link">tutorials</a>.</p>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
+                            <input type="checkbox" class="example-checkbox">
+                            <span>Option 1</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                            <input type="checkbox" class="example-checkbox" checked>
+                            <span>Option 2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchMode(mode) {
+            const basicMode = document.getElementById('basicMode');
+            const paletteMode = document.getElementById('paletteMode');
+            const tabs = document.querySelectorAll('.tab');
+            
+            if (mode === 'basic') {
+                basicMode.style.display = 'grid';
+                paletteMode.style.display = 'none';
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+            } else {
+                basicMode.style.display = 'none';
+                paletteMode.style.display = 'grid';
+                tabs[0].classList.remove('active');
+                tabs[1].classList.add('active');
+            }
+            updateExample();
+        }
+
+        function updateColorPicker(type) {
+            let input, picker;
+            if (type === 'primary') {
+                input = document.getElementById('primaryColorText');
+                picker = document.getElementById('primaryColor');
+            } else if (type === 'accent') {
+                input = document.getElementById('accentColorText');
+                picker = document.getElementById('accentColor');
+            } else {
+                input = document.getElementById(`color${type}Text`);
+                picker = document.getElementById(`color${type}`);
+            }
+
+            const color = input.value.trim();
+            if (/^#([0-9A-F]{6})$/i.test(color)) {
+                picker.value = color;
+                updateExample();
+            }
+        }
+
+        function updateExample() {
+            const isPaletteMode = document.getElementById('paletteMode').style.display !== 'none';
+            let colors = {};
+
+            if (isPaletteMode) {
+                // Get all 6 colors for palette mode
+                colors = {
+                    primary: document.getElementById('color1').value,    // Main theme color
+                    secondary: document.getElementById('color2').value,  // Secondary elements
+                    accent: document.getElementById('color3').value,     // Accent/highlights
+                    interactive: document.getElementById('color4').value,// Links/interactive
+                    success: document.getElementById('color5').value,    // Success/positive
+                    warning: document.getElementById('color6').value     // Warning/attention
+                };
+            } else {
+                // Basic mode uses just primary and accent
+                const primary = document.getElementById('primaryColor').value;
+                const accent = document.getElementById('accentColor').value;
+                colors = {
+                    primary: primary,
+                    secondary: accent,
+                    accent: accent,
+                    interactive: primary,
+                    success: accent,
+                    warning: accent
+                };
+            }
+
+            const themes = ['dark', 'light'];
+            themes.forEach(theme => {
+                const ui = document.getElementById(`${theme}UI`);
+                const isDark = theme === 'dark';
+                
+                // Apply colors in a specific order to prevent overwrites
+                const order = [
+                    // First apply header gradients
+                    () => {
+                        const headerGradient = isPaletteMode
+                            ? `linear-gradient(90deg, ${colors.primary}, ${colors.secondary})`
+                            : colors.primary;
+                        ui.querySelector('.example-header').style.background = headerGradient;
+                    },
+                    // Then apply button gradients
+                    () => {
+                        const buttonGradient = isPaletteMode
+                            ? `linear-gradient(45deg, ${colors.primary}, ${colors.interactive}, ${colors.accent})`
+                            : colors.secondary;
+                        ui.querySelectorAll('.example-button').forEach(button => {
+                            button.style.background = buttonGradient;
+                        });
+                    },
+                    // Then apply heading colors
+                    () => {
+                        ui.querySelectorAll('.example-card h3').forEach(h3 => {
+                            h3.style.color = colors.primary;
+                        });
+                    },
+                    // Then apply borders
+                    () => {
+                        ui.querySelectorAll('.example-card').forEach(card => {
+                            card.style.borderLeft = `4px solid ${colors.primary}`;
+                        });
+                    },
+                    // Then apply interactive elements
+                    () => {
+                        ui.querySelectorAll('.example-link').forEach(link => {
+                            link.style.color = colors.interactive;
+                        });
+                    },
+                    // Then apply tags
+                    () => {
+                        ui.querySelectorAll('.example-tag').forEach((tag, index) => {
+                            if (tag.classList.contains('warning')) {
+                                tag.style.backgroundColor = colors.warning;
+                            } else {
+                                tag.style.backgroundColor = index % 2 === 0 ? colors.accent : colors.secondary;
+                            }
+                        });
+                    },
+                    // Then apply progress
+                    () => {
+                        ui.querySelector('.example-progress-bar').style.backgroundColor = colors.accent;
+                    },
+                    // Finally apply checkboxes
+                    () => {
+                        ui.querySelectorAll('.example-checkbox').forEach(checkbox => {
+                            checkbox.style.borderColor = checkbox.checked ? colors.success : '#ccc';
+                            checkbox.style.backgroundColor = checkbox.checked ? colors.success : 'transparent';
+                        });
+                    }
+                ];
+
+                // Execute color applications in order
+                order.forEach(apply => apply());
+            });
+        }
+
+        // Initialize the example
+        window.onload = updateExample;
+
+        // Add checkbox functionality
+        document.querySelectorAll('.example-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateExample);
+        });
+
+        // Add color input sync
+        document.querySelectorAll('input[type="color"]').forEach(input => {
+            input.addEventListener('input', function() {
+                const textInput = document.getElementById(this.id + 'Text');
+                if (textInput) {
+                    textInput.value = this.value.toUpperCase();
+                }
+                updateExample();
+            });
+        });
+    </script>
+</body>
+</html>
